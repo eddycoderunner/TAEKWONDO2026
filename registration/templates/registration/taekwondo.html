@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Taekwondo Tournament Registration</title>
+    <link rel="stylesheet" href="{% static 'registration/css/style.css' %}">
+</head>
+
+<body>
+    <header>
+        <h1>Taekwondo Tournament Registration</h1>
+    </header>
+    <main class="container">
+        <section class="form-box">
+
+
+            <div
+                style="display: flex; margin-bottom: 20px; border-radius: 8px; overflow: hidden; border: 1px solid rgba(255,255,255,0.3);">
+                <button id="tabRegister" onclick="showTab('register')" style="
+                    flex: 1; padding: 10px; border: none; cursor: pointer;
+                    background: #e94560; color: white; font-weight: bold; font-size: 13px;">
+                    Register
+                </button>
+                <button id="tabLogin" onclick="showTab('login')" style="
+                    flex: 1; padding: 10px; border: none; cursor: pointer;
+                    background: rgba(255,255,255,0.15); color: white; font-weight: bold; font-size: 13px;">
+                    Login
+                </button>
+            </div>
+
+
+            <div id="registerSection">
+                <div style="text-align: center; margin-bottom: 12px;">
+                    <img id="photoPreview" src="{% static 'registration/images/default_avator.png' %}"
+                        alt="Profile Photo"
+                        style="width: 75px; height: 75px; border-radius: 50%; object-fit: cover; border: 3px solid white; display: block; margin: 0 auto 8px auto;">
+                    <label for="photo"
+                        style="cursor: pointer; background: rgba(0,0,0,0.6); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+                        Upload Passport Photo
+                    </label>
+                    <input type="file" name="photo" id="photo" accept="image/*" style="display: none;">
+                    <p id="photoError" style="color: #ff6b6b; display: none; font-size: 12px; margin-top: 5px;">Please
+                        upload a photo.</p>
+                </div>
+
+                <form id="registrationForm" method="POST" action="" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="text" name="fullname" id="fullname" placeholder="Full Names" required>
+                    <input type="number" name="age" id="age" placeholder="Age" required>
+                    <p id="ageError" style="color: #ff6b6b; display: none; font-size: 12px;">Sorry! You must be between
+                        15 and 40 years.</p>
+                    <input type="text" name="club_name" id="club" placeholder="Club" required>
+                    <p id="duplicateError" style="color: #ff6b6b; display: none; font-size: 12px;"></p>
+                    <select name="gender" id="gender" required>
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                    <select name="weight_category" id="weight" required>
+                        <option value="">Select weight category</option>
+                    </select>
+                    <input type="text" name="nationality" id="nationality" placeholder="Nationality" required>
+                    <button type="submit" id="submitBtn">Submit Registration</button>
+                </form>
+
+                <p id="successMessage" style="display: none; text-align: center; margin-top: 10px;">
+                    <span style="color: #00ff00; font-size: 14px; font-weight: bold;">Registration Successful
+                        ✅</span><br>
+                    <span style="color: white; font-size: 12px;">Your Registration Number:</span><br>
+                    <span id="regNumber"
+                        style="font-size: 18px; font-weight: bold; color: #fff; background: rgba(0,0,0,0.5); padding: 5px 14px; border-radius: 8px; border: 2px solid #fff; display: inline-block; margin-top: 5px; letter-spacing: 2px;"></span><br>
+                    <span style="color: rgba(255,255,255,0.7); font-size: 11px; display: block; margin-top: 4px;">Save
+                        your registration number to login later.</span>
+                </p>
+            </div>
+
+
+            <div id="loginSection" style="display: none;">
+                <h3 style="color: white; text-align: center; margin-bottom: 8px;">Player Login</h3>
+                <p style="color: rgba(255,255,255,0.7); text-align: center; font-size: 12px; margin-bottom: 12px;">
+                    Enter your registration number to view or update your details.
+                </p>
+                <input type="text" id="loginRegNumber" placeholder="e.g TKD-2024-001">
+                <p id="loginError" style="color: #ff6b6b; display: none; font-size: 12px;"></p>
+                <button onclick="loginPlayer()"
+                    style="width: 100%; padding: 10px; background: #e94560; color: white; border: none; border-radius: 7px; font-size: 14px; font-weight: bold; cursor: pointer; text-transform: uppercase; letter-spacing: 1px;">
+                    Login
+                </button>
+            </div>
+
+
+            <div id="profileSection" style="display: none; text-align: center;">
+                <img id="profilePhoto" src="" alt="Player Photo"
+                    style="width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 3px solid #e94560; margin-bottom: 8px;">
+                <h3 id="profileName" style="color: white; margin-bottom: 4px;"></h3>
+                <p id="profileRegNum" style="color: #e94560; font-weight: bold; margin-bottom: 12px;"></p>
+
+                <div
+                    style="text-align: left; color: white; font-size: 13px; margin-bottom: 12px; background: rgba(0,0,0,0.3); padding: 10px; border-radius: 8px;">
+                    <p style="margin-bottom: 5px;">Age: <span id="profileAge"></span></p>
+                    <p style="margin-bottom: 5px;">Club: <span id="profileClub"></span></p>
+                    <p style="margin-bottom: 5px;">Gender: <span id="profileGender"></span></p>
+                    <p style="margin-bottom: 5px;">Weight: <span id="profileWeight"></span></p>
+                    <p>Nationality: <span id="profileNationality"></span></p>
+                </div>
+
+                <button onclick="showUpdateForm()"
+                    style="width: 100%; padding: 9px; background: #1a1a2e; color: white; border: none; border-radius: 7px; font-size: 13px; font-weight: bold; cursor: pointer; margin-bottom: 7px; text-transform: uppercase;">
+                    Update My Details
+                </button>
+                <button onclick="logout()"
+                    style="width: 100%; padding: 8px; background: rgba(255,255,255,0.15); color: white; border: 1px solid white; border-radius: 7px; font-size: 13px; cursor: pointer;">
+                    Logout
+                </button>
+            </div>
+
+            <div id="updateSection" style="display: none;">
+                <h3 style="color: white; text-align: center; margin-bottom: 12px;">Update Details</h3>
+                <form id="updateForm" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <input type="hidden" id="updateRegNumber">
+                    <div style="text-align: center; margin-bottom: 10px;">
+                        <img id="updatePhotoPreview" src="" alt="Photo"
+                            style="width: 70px; height: 70px; border-radius: 50%; object-fit: cover; border: 2px solid white; display: block; margin: 0 auto 8px auto;">
+                        <label for="updatePhoto"
+                            style="cursor: pointer; background: rgba(0,0,0,0.6); color: white; padding: 6px 12px; border-radius: 6px; font-size: 12px;">
+                            Change Photo
+                        </label>
+                        <input type="file" id="updatePhoto" accept="image/*" style="display: none;">
+                    </div>
+                    <input type="text" id="updateFullname" placeholder="Full Names" required>
+                    <input type="number" id="updateAge" placeholder="Age" required>
+                    <p id="updateAgeError" style="color: #ff6b6b; display: none; font-size: 12px;">Sorry! You must be
+                        between 15 and 40 years.</p>
+                    <input type="text" id="updateClub" placeholder="Club" required>
+                    <select id="updateGender" required>
+                        <option value="">Select Gender</option>
+                        <option value="male">Male</option>
+                        <option value="female">Female</option>
+                    </select>
+                    <select id="updateWeight" required>
+                        <option value="">Select Weight Category</option>
+                    </select>
+                    <input type="text" id="updateNationality" placeholder="Nationality" required>
+                    <p id="updateError" style="color: #ff6b6b; display: none; font-size: 12px;"></p>
+                    <p id="updateSuccess" style="color: #00ff00; display: none; font-size: 12px;"></p>
+                    <button type="button" onclick="submitUpdate()"
+                        style="width: 100%; padding: 10px; background: #e94560; color: white; border: none; border-radius: 7px; font-size: 13px; font-weight: bold; cursor: pointer; text-transform: uppercase; margin-bottom: 7px;">
+                        Save Changes
+                    </button>
+                    <button type="button" onclick="showProfile()"
+                        style="width: 100%; padding: 8px; background: rgba(255,255,255,0.15); color: white; border: 1px solid white; border-radius: 7px; font-size: 13px; cursor: pointer;">
+                        ← Back to Profile
+                    </button>
+                </form>
+            </div>
+
+        </section>
+    </main>
+    <script src="{% static 'registration/js/script.js' %}"></script>
+</body>
+
+</html>

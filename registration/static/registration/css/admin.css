@@ -1,0 +1,66 @@
+.card {
+    background: #1e1e1e;
+    color: white;
+    padding: 15px;
+    margin: 0;
+    width: 280px;
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.4);
+    transition: 0.3s;
+    float: none;
+}
+
+.card:hover {
+    transform: scale(1.02);
+}
+
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    border-bottom: 1px solid #333;
+    padding-bottom: 8px;
+}
+
+.card-header h3 {
+    margin: 0;
+}
+
+.badge {
+    background: gold;
+    color: black;
+    padding: 3px 8px;
+    border-radius: 5px;
+    font-size: 12px;
+}
+
+.card-body p {
+    margin: 5px 0;
+}
+
+.card-footer {
+    margin-top: 10px;
+    text-align: right;
+}
+
+.delete-btn {
+    background: red;
+    color: white;
+    border: none;
+    padding: 6px 10px;
+    cursor: pointer;
+    border-radius: 5px;
+}
+
+#playerList {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    gap: 20px;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 20px;
+    display: block !important;
+}
