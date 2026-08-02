@@ -13,6 +13,7 @@ class AdminAccessMiddleware:
             allowed_ips = [
                 '127.0.0.1',
                 '::1',
+                '217.199.148.249',
             ]
 
             if ip not in allowed_ips:
