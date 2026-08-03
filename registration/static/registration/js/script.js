@@ -95,6 +95,12 @@ document.getElementById("club").addEventListener("input", function () {
 });
 
 
+document.getElementById("email").addEventListener("input", function () {
+    document.getElementById("emailError").style.display = "none";
+    this.style.borderColor = "";
+});
+
+
 document.getElementById("photo").addEventListener("change", function () {
     const file = this.files[0];
     if (file) {
@@ -118,6 +124,7 @@ document.getElementById("updatePhoto").addEventListener("change", function () {
         reader.readAsDataURL(file);
     }
 });
+
 
 form.addEventListener("submit", function (event) {
     event.preventDefault();
@@ -152,29 +159,39 @@ form.addEventListener("submit", function (event) {
             document.getElementById("submitBtn").innerText = "Submit Registration";
 
             if (data.status === "success") {
+
                 document.getElementById("ageError").style.display = "none";
                 document.getElementById("duplicateError").style.display = "none";
+                document.getElementById("emailError").style.display = "none";
                 document.getElementById("photoError").style.display = "none";
                 document.getElementById("fullname").style.borderColor = "";
                 document.getElementById("club").style.borderColor = "";
+                document.getElementById("email").style.borderColor = "";
                 ageInput.style.borderColor = "";
+
 
                 document.getElementById("regNumber").innerText = data.registration_number;
                 document.getElementById("photoPreview").src = "/static/registration/images/default_avator.png";
+
 
                 successMessage.style.display = "block";
                 successMessage.scrollIntoView({ behavior: "smooth" });
                 setTimeout(() => { successMessage.style.display = "none"; }, 10000);
 
+
                 form.reset();
                 weightSelect.innerHTML = '<option value="">Select Weight Category</option>';
 
             } else if (data.status === "error") {
+
+
                 if (data.field === "age") {
                     document.getElementById("ageError").innerText = data.message;
                     document.getElementById("ageError").style.display = "block";
                     ageInput.style.borderColor = "red";
                     document.getElementById("submitBtn").disabled = true;
+
+
                 } else if (data.field === "duplicate") {
                     const dupError = document.getElementById("duplicateError");
                     dupError.innerText = data.message;
@@ -186,6 +203,19 @@ form.addEventListener("submit", function (event) {
                         document.getElementById("fullname").style.borderColor = "";
                         document.getElementById("club").style.borderColor = "";
                     }, 5000);
+
+
+                } else if (data.field === "email") {
+                    const emailError = document.getElementById("emailError");
+                    emailError.innerText = data.message;
+                    emailError.style.display = "block";
+                    document.getElementById("email").style.borderColor = "red";
+                    setTimeout(() => {
+                        emailError.style.display = "none";
+                        document.getElementById("email").style.borderColor = "";
+                    }, 5000);
+
+
                 } else if (data.field === "server") {
                     alert(data.message);
                 }
@@ -235,6 +265,7 @@ function loginPlayer() {
             document.getElementById("loginError").style.display = "block";
         });
 }
+
 
 function showProfile() {
     document.getElementById("loginSection").style.display = "none";
@@ -337,22 +368,11 @@ function submitUpdate() {
         .catch(error => console.error("Error:", error));
 }
 
+
 function logout() {
     loggedInPlayer = null;
     document.getElementById("profileSection").style.display = "none";
     document.getElementById("loginRegNumber").value = "";
     showTab('login');
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
