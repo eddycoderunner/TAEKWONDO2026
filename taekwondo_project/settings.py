@@ -96,5 +96,5 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'okwatoedgar@gmail.com'
-DEFAULT_HOST_PASSWORD = 'bcwk gbnb yxun bdgs'
+DEFAULT_HOST_PASSWORD = 'bcwkgbnbyxunbdgs'
 DEFAULT_FROM_EMAIL = 'okwatoedgar@gmail.com'
