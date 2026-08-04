@@ -20,7 +20,6 @@ def register(request):
             club_name = request.POST.get('club_name', '').strip()
             email = request.POST.get('email', '').strip()
 
-            # Check duplicate by name and club
             already_registered = Registration.objects.filter(
                 full_name__iexact=full_name,
                 club_name__iexact=club_name
@@ -30,16 +29,15 @@ def register(request):
                 return JsonResponse({
                     'status': 'error',
                     'field': 'duplicate',
-                    'message': f'⚠️ "{full_name}" from "{club_name}" has already been registered!'
+                    'message': f'"{full_name}" from "{club_name}" has already been registered!'
                 })
-
 
             email_exists = Registration.objects.filter(email__iexact=email).exists()
             if email_exists:
                 return JsonResponse({
                     'status': 'error',
                     'field': 'email',
-                    'message': f'⚠️ This email "{email}" is already registered!'
+                    'message': f'This email "{email}" is already registered!'
                 })
 
             new_player = Registration.objects.create(
@@ -52,7 +50,6 @@ def register(request):
                 email=email,
                 photo=request.FILES.get('photo'),
             )
-
 
             try:
                 send_mail(
@@ -75,13 +72,13 @@ Nationality     : {request.POST.get('nationality')}
 _________________________________________________________
 
 IMPORTANT: Save your Registration Number to login and view your details:
- {new_player.registration_number}
+👉 {new_player.registration_number}
 
 Good luck and see you on the mat!
 
 Regards,
 Taekwondo Tournament Committee
-@eddychamptkd🏹''',
+@eddychamptkd''',
                     from_email=settings.DEFAULT_FROM_EMAIL,
                     recipient_list=[email],
                     fail_silently=False,
@@ -125,7 +122,7 @@ def login_view(request):
         except Registration.DoesNotExist:
             return JsonResponse({
                 'status': 'error',
-                'message': '⚠️ Registration number not found.'
+                'message': 'Registration number not found.'
             })
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
@@ -167,3 +164,20 @@ def update_view(request):
             return JsonResponse({'status': 'error', 'message': 'Something went wrong. Please try again.'})
 
     return JsonResponse({'status': 'error', 'message': 'Invalid request'})
+
+
+
+def athletes_list(request):
+    if request.method == 'GET':
+        athletes = Registration.objects.all().order_by('full_name')
+        data = []
+        for athlete in athletes:
+            data.append({
+                'full_name': athlete.full_name,
+                'club_name': athlete.club_name,
+                'weight_category': athlete.weight_category,
+                'nationality': athlete.nationality,
+                'gender': athlete.gender,
+                'photo': athlete.photo.url if athlete.photo else None,
+            })
+        return JsonResponse({'status': 'success', 'athletes': data})

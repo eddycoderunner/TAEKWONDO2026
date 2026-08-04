@@ -38,8 +38,29 @@ function showTab(tab) {
     document.getElementById("loginSection").style.display = tab === 'login' ? 'block' : 'none';
     document.getElementById("profileSection").style.display = 'none';
     document.getElementById("updateSection").style.display = 'none';
+    document.getElementById("athletesSection").style.display = 'none';
     document.getElementById("tabRegister").style.background = tab === 'register' ? '#e94560' : 'rgba(255,255,255,0.2)';
     document.getElementById("tabLogin").style.background = tab === 'login' ? '#e94560' : 'rgba(255,255,255,0.2)';
+}
+
+
+function showAthletesSection() {
+    document.getElementById("registerSection").style.display = 'none';
+    document.getElementById("loginSection").style.display = 'none';
+    document.getElementById("profileSection").style.display = 'none';
+    document.getElementById("updateSection").style.display = 'none';
+    document.getElementById("athletesSection").style.display = 'block';
+    loadAthletes();
+}
+
+
+function goBackFromAthletes() {
+    document.getElementById("athletesSection").style.display = "none";
+    if (loggedInPlayer) {
+        showProfile();
+    } else {
+        showTab('register');
+    }
 }
 
 
@@ -159,7 +180,6 @@ form.addEventListener("submit", function (event) {
             document.getElementById("submitBtn").innerText = "Submit Registration";
 
             if (data.status === "success") {
-
                 document.getElementById("ageError").style.display = "none";
                 document.getElementById("duplicateError").style.display = "none";
                 document.getElementById("emailError").style.display = "none";
@@ -169,29 +189,22 @@ form.addEventListener("submit", function (event) {
                 document.getElementById("email").style.borderColor = "";
                 ageInput.style.borderColor = "";
 
-
                 document.getElementById("regNumber").innerText = data.registration_number;
                 document.getElementById("photoPreview").src = "/static/registration/images/default_avator.png";
 
-
                 successMessage.style.display = "block";
                 successMessage.scrollIntoView({ behavior: "smooth" });
-                setTimeout(() => { successMessage.style.display = "none"; }, 10000);
-
+                setTimeout(() => { successMessage.style.display = "none"; }, 15000);
 
                 form.reset();
                 weightSelect.innerHTML = '<option value="">Select Weight Category</option>';
 
             } else if (data.status === "error") {
-
-
                 if (data.field === "age") {
                     document.getElementById("ageError").innerText = data.message;
                     document.getElementById("ageError").style.display = "block";
                     ageInput.style.borderColor = "red";
                     document.getElementById("submitBtn").disabled = true;
-
-
                 } else if (data.field === "duplicate") {
                     const dupError = document.getElementById("duplicateError");
                     dupError.innerText = data.message;
@@ -203,8 +216,6 @@ form.addEventListener("submit", function (event) {
                         document.getElementById("fullname").style.borderColor = "";
                         document.getElementById("club").style.borderColor = "";
                     }, 5000);
-
-
                 } else if (data.field === "email") {
                     const emailError = document.getElementById("emailError");
                     emailError.innerText = data.message;
@@ -214,8 +225,6 @@ form.addEventListener("submit", function (event) {
                         emailError.style.display = "none";
                         document.getElementById("email").style.borderColor = "";
                     }, 5000);
-
-
                 } else if (data.field === "server") {
                     alert(data.message);
                 }
@@ -272,6 +281,7 @@ function showProfile() {
     document.getElementById("updateSection").style.display = "none";
     document.getElementById("profileSection").style.display = "block";
     document.getElementById("registerSection").style.display = "none";
+    document.getElementById("athletesSection").style.display = "none";
 
     document.getElementById("profileName").innerText = loggedInPlayer.full_name;
     document.getElementById("profileRegNum").innerText = loggedInPlayer.registration_number;
@@ -374,5 +384,75 @@ function logout() {
     document.getElementById("profileSection").style.display = "none";
     document.getElementById("loginRegNumber").value = "";
     showTab('login');
+}
+
+
+let allAthletes = [];
+
+function loadAthletes() {
+    document.getElementById("athletesList").innerHTML = '<p style="color:white; text-align:center;">Loading...</p>';
+
+    fetch("/athletes/")
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === "success") {
+                allAthletes = data.athletes;
+                renderAthletes(allAthletes);
+            }
+        })
+        .catch(error => console.error("Error loading athletes:", error));
+}
+
+
+function renderAthletes(athletes) {
+    const container = document.getElementById("athletesList");
+    const countEl = document.getElementById("athleteCount");
+
+    countEl.innerText = `Total Athletes: ${athletes.length}`;
+
+    if (athletes.length === 0) {
+        container.innerHTML = '<p style="color:white; text-align:center;">No athletes registered yet.</p>';
+        return;
+    }
+
+    container.innerHTML = athletes.map((athlete, index) => `
+        <div style="
+            display: flex;
+            align-items: center;
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255,255,255,0.15);
+        ">
+            <span style="color: #e94560; font-weight: bold; font-size: 13px; margin-right: 10px; min-width: 20px;">${index + 1}</span>
+            <img src="${athlete.photo || '/static/registration/images/default_avator.png'}"
+                style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover; border: 2px solid #e94560; margin-right: 10px;">
+            <div style="flex: 1;">
+                <p style="color: white; font-weight: bold; font-size: 13px; margin: 0;">${athlete.full_name}</p>
+                <p style="color: rgba(255,255,255,0.6); font-size: 11px; margin: 2px 0;">⚖️ ${athlete.weight_category}</p>
+                <p style="color: rgba(255,255,255,0.6); font-size: 11px; margin: 0;">🏛️ ${athlete.club_name} &nbsp;|&nbsp; 🌍 ${athlete.nationality}</p>
+            </div>
+            <span style="
+                background: ${athlete.gender === 'male' ? 'rgba(0,100,255,0.3)' : 'rgba(255,0,100,0.3)'};
+                color: white;
+                font-size: 10px;
+                padding: 3px 7px;
+                border-radius: 10px;
+            ">${athlete.gender === 'male' ? '♂ Male' : '♀ Female'}</span>
+        </div>
+    `).join('');
+}
+
+
+function filterAthletes() {
+    const query = document.getElementById("athleteSearch").value.toLowerCase();
+    const filtered = allAthletes.filter(athlete =>
+        athlete.full_name.toLowerCase().includes(query) ||
+        athlete.club_name.toLowerCase().includes(query) ||
+        athlete.nationality.toLowerCase().includes(query) ||
+        athlete.weight_category.toLowerCase().includes(query)
+    );
+    renderAthletes(filtered);
 }
 
