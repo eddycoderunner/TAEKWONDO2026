@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>
+        Tournament Draws
+    </title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #1a1a2e;
+            color: white;
+            padding: 20px;
+        }
+
+        h1 {
+            text-align: center;
+            color: #e94560;
+            margin-bottom: 10px;
+            font-size: 24px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: rgba(255, 255, 255, 0.6);
+            margin-bottom: 30px;
+            font-size: 13px;
+        }
+
+        .gender-section {
+            margin-bottom: 40px;
+        }
+
+        .gender-title {
+            font-size: 20px;
+            font-weight: bold;
+            padding: 10px 20px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+        }
+
+        .male-title {
+            background: rgba(0, 100, 255, 0.3);
+            border-left: 4px solid #0064ff;
+        }
+
+        .female-title {
+            background: rgba(255, 0, 100, 0.3);
+            border-left: 4px solid #ff0064;
+        }
+
+        .category-block {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            padding: 15px;
+            margin-bottom: 20px;
+            border: 1px solid rgba(0, 100, 255, 0.1);
+        }
+
+        .category-title {
+            font-size: 15px;
+            font-weight: bold;
+            color: #e94560;
+            margin-bottom: 5px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .generated_at {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.4);
+            margin-bottom: 12px;
+        }
+
+        .fixture {
+            display: flex;
+            align-items: center;
+            background: rga(0, 0, 0, 0.3);
+            border-radius: 8px;
+            padding: 10px 15px;
+            margin-bottom: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .match-number {
+            color: #e94560;
+            font-weight: bold;
+            font-size: 13px;
+            min-width: 30px;
+        }
+
+        .player-box {
+            flex: 1;
+            padding: 5px 10px;
+            background: rgba(255, 255, 255, 0.08);
+            border-radius: 6px;
+        }
+
+        .player-name {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .player-info {
+            font-size: 11px;
+            color: rgba(255, 255, 255, 0.6);
+            margin-top: 2px;
+        }
+
+        .vs-badge {
+            padding: 5px 12px;
+            background: #e94560;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 12px;
+            margin: 0 10px;
+        }
+
+        .bye-section {
+            margin-top: 10px;
+        }
+
+        .bye-player {
+            display: inline-block;
+            background: rgba(255, 165, 0, 0.2);
+            border: 1px solid orange;
+            border-radius: 6px;
+            padding: 6px 12px;
+            margin: 4px;
+            font-size: 12px;
+        }
+
+        .bye-label {
+            color: orange;
+            font-size: 12px;
+            margin-bottom: 5px;
+        }
+
+        .no-players {
+            color: rgba(255, 255, 255, 0.4);
+            text-align: center;
+            font-size: 13px;
+            padding: 20px;
+        }
+
+        .count-badge {
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 20px;
+            padding: 2px 10px;
+            font-size: 12px;
+            margin-left: 10px;
+        }
+
+        .back-link {
+            display: inline-block;
+            margin-bottom: 20px;
+            color: #e94560;
+            text-decoration: none;
+            font-size: 13px;
+        }
+
+        .back-link:hover {
+            text-decoration: underline;
+        }
+
+        .info-box {
+            background: rgba(0, 100, 255, 0.05);
+            border: 1px solid rgba(0, 100, 255, 0.15);
+            border-radius: 8px;
+            padding: 12px 20px;
+            margin-bottom: 25px;
+            text-align: center;
+            font-size: 13px;
+            color: rgba(0, 100, 255, 0.7);
+        }
+
+        @media print {
+            .back-link {
+                display: none;
+            }
+
+            body {
+                background: white;
+                color: black;
+            }
+
+            .fixture {
+                border: 1px solid #ccc;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <a href="/admin/" class="back-link">Back to Admin</a>
+    <h1>Tournament Draws</h1>
+    <p class="subtitle">Draws autamatically update when athlete list changes</p>
+    <div class="info-box">Draws reshuffle autamatically when a new athlete registers or is removed</div>
+    <div class="gender-section">
+        <div class="gender-title male-title">Male Draws</div>
+        {% if male_draws %}
+        {% for category, data in male_draws.items %}
+        <div class="category-block">
+            <div class="category-title">
+                {{ category }}
+                <span class="count-badge">{{ data.count }}</span>
+            </div>
+            <div class="generated_at">Last updated: {{ data.generated_at|date: "d M Y H:i" }} </div>
+            {% if data.fixtures %}
+            {% for fixtures in data.fixtures %}
+            <div class="fixture">
+                <span class="match-number">M{{ forloop.counter}}</span>
+                <div class="player-box">
+                    <div class="player-name">{{ fixture.player1.full-name }}</div>
+                    <div class="player-info">{{ fixture.player1.club_name}} | {{ fixture.player1.nationality }}</div>
+                </div>
+                <span class="vs-badge">VS</span>
+                <div class="player-box">
+                    <div class="player-name">{{ fixture.player2.full-name}}</div>
+                    <div class="player-info">{{ fixture.player2.club_name }} | {{fixture.player2.nationality}} </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endfor %}
+            {% endif %}
+            {% if data.byes %}
+            <div class="bye-section">
+                <div class="bye-label">BYE(autamatically pass to next round):</div>
+                {% for bye in data.byes %}
+                <span class="bye-player">{{ bye.full-name }} - {{ bye.club_name }}</span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="no-players">No male athlete registered yet.</div>
+        {% endif %}
+    </div>
+
+    <div class="gender-section">
+        <div class="gender-title female-title">Female Draws</div>
+        {% if female_draws %}
+        {% for category, data in female_draws.items %}
+        <div class="category-block">
+            <div class="category-title">
+                {{ category }}
+                <span class="count-badge">{{ data.count }} athletes</span>
+            </div>
+            <div class="generated_at">Last updated: {{ data.generated_at|date:"d M Y H:i"}} </div>
+            {% if data.fixtures %}
+            <div class="fixture">
+                <span class="match-number">F{{ forloop.counter}} </span>
+                <div class="player-box">
+                    <div class="player-name">{{ fixture.player1.full-name}} </div>
+                    <div class="player-info">{{ fixture.player1.club_name }} | {{ fixture.player1.nationality }} </div>
+                </div>
+                <span class="vs-badge">VS</span>
+                <div class="player-box">
+                    <div class="player-name">{{ fixture.player2.full-name}} </div>
+                    <div class="player-info">{{ fixture.player2.club_name}} | {{ fixture.player2.nationality}} </div>
+                </div>
+            </div>
+            {% endfor %}
+            {% endif %}
+            {% if data.byes %}
+            <div class="bye-section">
+                <div class="bye-label">BYE(Automatic pass to next round):</div>
+                {% for bye in data.byes %}
+                <span class="bye-player">{{ bye.full-name }} - {{ bye.club_name }} </span>
+                {% endfor %}
+            </div>
+            {% endif %}
+        </div>
+        {% endfor %}
+        {% else %}
+        <div class="no-players">No female athletes registered yet.</div>
+        {% endif %}
+    </div>
+</body>
+
+</html>

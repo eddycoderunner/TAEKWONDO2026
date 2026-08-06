@@ -1,5 +1,5 @@
 from django.contrib import admin
-from . models import Registration
+from . models import Registration, DrawResult
 from django.utils.html import format_html
 
 @admin.register(Registration)
@@ -57,3 +57,8 @@ class RegistrationAdmin(admin.ModelAdmin):
             )
         return format_html('<p style="color:gray;">No photo uploaded</p>')
     large_photo.short_description = 'Player Photo'
+
+@admin.register(DrawResult)
+class DrawResultAdmin(admin.ModelAdmin):
+    list_display = ['gender', 'weight_category', 'generated_at']
+    ordering = ['gender', 'weight_category']
