@@ -10,6 +10,7 @@ class Registration(models.Model):
     gender = models.CharField(max_length=10)
     weight_category = models.CharField(max_length=50)
     nationality = models.CharField(max_length=50)
+    email = models.EmailField(blank=True, null=True)
     photo = models.ImageField(upload_to='photos/', blank=True, null=True)
 
     def generate_registration_number(self):
