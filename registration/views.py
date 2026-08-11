@@ -32,13 +32,6 @@ def register(request):
                     'message': f'"{full_name}" from "{club_name}" has already been registered!'
                 })
 
-            email_exists = Registration.objects.filter(email__iexact=email).exists()
-            if email_exists:
-                return JsonResponse({
-                    'status': 'error',
-                    'field': 'email',
-                    'message': f'This email "{email}" is already registered!'
-                })
 
             new_player = Registration.objects.create(
                 full_name=full_name,
