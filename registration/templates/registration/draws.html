@@ -217,7 +217,7 @@
                 {{ category }}
                 <span class="count-badge">{{ data.count }}</span>
             </div>
-            <div class="generated_at">Last updated: {{ data.generated_at|date: "d M Y H:i" }} </div>
+            <div class="generated_at">Last updated: {{ data.generated_at|date:"d M Y H:i" }} </div>
             {% if data.fixtures %}
             {% for fixtures in data.fixtures %}
             <div class="fixture">
