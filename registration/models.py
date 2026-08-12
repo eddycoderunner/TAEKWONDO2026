@@ -15,11 +15,9 @@ class Registration(models.Model):
 
     def generate_registration_number(self):
         while True:
-
             chars = string.ascii_uppercase + string.digits
             random_part = ''.join(random.choices(chars, k=5))
             reg_number = f"TKD-{random_part}"
-
             if not Registration.objects.filter(registration_number=reg_number).exists():
                 return reg_number
 
@@ -32,10 +30,11 @@ class Registration(models.Model):
 
     def delete(self, *args, **kwargs):
         super().delete(*args, **kwargs)
-        DrawResult.generate_all_draws()   
+        DrawResult.generate_all_draws()
 
     def __str__(self):
         return self.full_name
+
 
 class DrawResult(models.Model):
     gender = models.CharField(max_length=10)
@@ -63,7 +62,7 @@ class DrawResult(models.Model):
             "-73kg Middle Weight", "+73kg Heavy Weight"
         ]
 
-        for gender, categories in[('male', weight_categories_male), ('female', weight_categories_female)]:
+        for gender, categories in [('male', weight_categories_male), ('female', weight_categories_female)]:
             for category in categories:
                 players = list(Registration.objects.filter(
                     gender=gender,
@@ -79,8 +78,8 @@ class DrawResult(models.Model):
 
                 for i in range(0, len(players), 2):
                     fixtures.append({
-                        'player1':players[i],
-                        'player2':players[i + 1],
+                        'player1': players[i],
+                        'player2': players[i + 1],
                     })
 
                 cls.objects.update_or_create(
@@ -93,21 +92,17 @@ class DrawResult(models.Model):
                 )
 
 
+class BracketResult(models.Model):
+    gender = models.CharField(max_length=10)
+    weight_category = models.CharField(max_length=50)
+    bracket_data = models.JSONField(default=dict)
+    updated_at = models.DateTimeField(auto_now=True)
 
+    class Meta:
+        unique_together = ['gender', 'weight_category']
 
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def __str__(self):
+        return f"Bracket: {self.gender} - {self.weight_category}"
 
 
 

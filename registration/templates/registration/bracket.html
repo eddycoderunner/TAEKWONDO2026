@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tournament Bracket</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: Arial, sans-serif;
+            background: #f0f0f0;
+            color: #000;
+        }
+
+        .header {
+            background: #1a1a2e;
+            color: white;
+            text-align: center;
+            padding: 15px;
+            border-bottom: 4px solid #e94560;
+        }
+
+        .header h1 {
+            font-size: 22px;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+        }
+
+        .header p {
+            font-size: 13px;
+            color: rgba(255, 255, 255, 0.7);
+            margin-top: 5px;
+        }
+
+        .controls {
+            background: white;
+            padding: 15px 20px;
+            display: flex;
+            gap: 15px;
+            align-items: center;
+            flex-wrap: wrap;
+            border-bottom: 1px solid #ddd;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        .controls label {
+            font-weight: bold;
+            font-size: 13px;
+        }
+
+        .controls select {
+            padding: 8px 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 13px;
+            cursor: pointer;
+        }
+
+        .btn {
+            padding: 8px 18px;
+            border: none;
+            border-radius: 6px;
+            font-size: 13px;
+            font-weight: bold;
+            cursor: pointer;
+            text-decoration: none;
+            display: inline-block;
+        }
+
+        .btn-primary {
+            background: #e94560;
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #1a1a2e;
+            color: white;
+        }
+
+        .btn-print {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-back {
+            background: #6c757d;
+            color: white;
+        }
+
+        .bracket-container {
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        .bracket-title {
+            text-align: center;
+            font-size: 18px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1a1a2e;
+        }
+
+        .bracket-subtitle {
+            text-align: center;
+            font-size: 13px;
+            color: #666;
+            margin-bottom: 20px;
+        }
+
+        .bracket {
+            display: flex;
+            gap: 0;
+            align-items: flex-start;
+            min-width: max-content;
+            margin: 0 auto;
+        }
+
+        .round {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-around;
+            min-width: 220px;
+        }
+
+        .round-title {
+            text-align: center;
+            font-weight: bold;
+            font-size: 12px;
+            color: #1a1a2e;
+            background: #e0e0e0;
+            padding: 5px;
+            margin-bottom: 10px;
+            border-radius: 4px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .match {
+            margin: 8px 5px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            overflow: hidden;
+            background: white;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
+            position: relative;
+        }
+
+        .match-number {
+            background: #1a1a2e;
+            color: white;
+            font-size: 10px;
+            padding: 2px 8px;
+            text-align: center;
+        }
+
+        .player {
+            display: flex;
+            align-items: center;
+            padding: 7px 10px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border-bottom: 1px solid #f0f0f0;
+            min-height: 40px;
+        }
+
+        .player:last-child {
+            border-bottom: none;
+        }
+
+        .player:hover {
+            background: #fff3f5;
+        }
+
+        .player.winner {
+            background: #d4edda;
+            font-weight: bold;
+        }
+
+        .player.bye {
+            background: #fff3cd;
+            color: #856404;
+            font-style: italic;
+            cursor: default;
+        }
+
+        .player.empty {
+            background: #f8f9fa;
+            color: #aaa;
+            cursor: default;
+            font-style: italic;
+        }
+
+        .flag {
+            font-size: 18px;
+            margin-right: 8px;
+            min-width: 25px;
+        }
+
+        .player-name {
+            font-size: 12px;
+            font-weight: bold;
+            flex: 1;
+        }
+
+        .player-info {
+            font-size: 10px;
+            color: #666;
+        }
+
+        .connector {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 30px;
+            position: relative;
+        }
+
+        .winner-section {
+            margin-top: 30px;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .winner-trophy {
+            font-size: 60px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .winner-name {
+            font-size: 24px;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .winner-club {
+            font-size: 14px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        .byes-section {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 12px 15px;
+            margin: 15px 20px;
+        }
+
+        .byes-title {
+            font-weight: bold;
+            font-size: 13px;
+            color: #856404;
+            margin-bottom: 8px;
+        }
+
+        .bye-badge {
+            display: inline-block;
+            background: white;
+            border: 1px solid #ffc107;
+            border-radius: 20px;
+            padding: 4px 12px;
+            font-size: 12px;
+            margin: 3px;
+            color: #856404;
+        }
+
+        .no-bracket {
+            text-align: center;
+            padding: 60px;
+            color: #999;
+            font-size: 15px;
+        }
+
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        @media print {
+            .controls {
+                display: none;
+            }
+
+            body {
+                background: white;
+            }
+
+            .bracket-container {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="header">
+        <h1>Taekwondo Tournament</h1>
+        <p>Tournament Bracket — Admin View</p>
+    </div>
+
+    <div class="controls" id="controls">
+        <a href="/admin/" class="btn btn-back">← Admin</a>
+        <a href="/admin/draws/" class="btn btn-secondary">Draws</a>
+
+        <label>Gender:</label>
+        <select id="genderSelect" onchange="updateCategories()">
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+        </select>
+
+        <label>Weight Category:</label>
+        <select id="categorySelect" onchange="loadBracket()">
+            <option value="">Select Category</option>
+        </select>
+
+        <button class="btn btn-primary" onclick="resetBracket()">Reset Bracket</button>
+        <button class="btn btn-print" onclick="window.print()">Print</button>
+    </div>
+
+    <div id="bracketContainer" class="bracket-container">
+        <div class="no-bracket">
+            Select a gender and weight category to view the bracket
+        </div>
+    </div>
+
+    <script>
+        const maleCategories = {{ male_categories| safe }};
+        const femaleCategories = {{ female_categories| safe }};
+
+        let currentBracket = [];
+        let currentGender = '';
+        let currentCategory = '';
+        let bracketData = {};
+
+        function updateCategories() {
+            const gender = document.getElementById('genderSelect').value;
+            const categorySelect = document.getElementById('categorySelect');
+            categorySelect.innerHTML = '<option value="">Select Category</option>';
+
+            const categories = gender === 'male' ? maleCategories : femaleCategories;
+            categories.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat;
+                option.textContent = cat;
+                categorySelect.appendChild(option);
+            });
+
+            document.getElementById('bracketContainer').innerHTML = `
+            <div class="no-bracket">Select a weight category to view the bracket</div>
+        `;
+        }
+
+        function loadBracket() {
+            const gender = document.getElementById('genderSelect').value;
+            const category = document.getElementById('categorySelect').value;
+
+            if (!gender || !category) return;
+
+            currentGender = gender;
+            currentCategory = category;
+
+            document.getElementById('bracketContainer').innerHTML = `
+            <div class="loading">Loading bracket...</div>
+        `;
+
+            fetch(`/admin/bracket/data/?gender=${gender}&category=${encodeURIComponent(category)}`)
+                .then(r => r.json())
+                .then(data => {
+                    if (data.status === 'success') {
+                        bracketData = data.bracket_data || {};
+                        renderBracket(data);
+                    } else {
+                        document.getElementById('bracketContainer').innerHTML = `
+                        <div class="no-bracket">No draw found for this category.</div>
+                    `;
+                    }
+                })
+                .catch(err => console.error(err));
+        }
+
+        function getRoundName(roundIndex, totalRounds) {
+            const remaining = totalRounds - roundIndex;
+            if (remaining === 1) return 'FINAL';
+            if (remaining === 2) return 'SEMI FINALS';
+            if (remaining === 3) return 'QUARTER FINALS';
+            return `ROUND OF ${Math.pow(2, remaining)}`;
+        }
+
+        function renderBracket(data) {
+            const fixtures = data.fixtures;
+            const byes = data.byes;
+            const players = data.players;
+            const category = data.category;
+            const gender = data.gender;
+
+            if (fixtures.length === 0 && players.length <= 1) {
+                document.getElementById('bracketContainer').innerHTML = `
+                <div class="no-bracket">Not enough players for a bracket in this category.</div>
+            `;
+                return;
+            }
+
+
+            let rounds = buildRounds(fixtures, byes, players);
+            currentBracket = rounds;
+
+            let html = `
+            <div class="bracket-title">
+                ${gender === 'male' ? '♂ Male' : '♀ Female'} — ${category}
+            </div>
+            <div class="bracket-subtitle">
+                ${players.length} athlete${players.length !== 1 ? 's' : ''} registered
+                ${byes.length > 0 ? ` | ${byes.length} bye${byes.length !== 1 ? 's' : ''}` : ''}
+            </div>
+        `;
+
+
+            if (byes.length > 0) {
+                html += `<div class="byes-section">
+                <div class="byes-title">⚡ BYE — Automatic advance to next round:</div>`;
+                byes.forEach(bye => {
+                    html += `<span class="bye-badge">${bye.flag || '🏳️'} ${bye.full_name} (${bye.club_name})</span>`;
+                });
+                html += `</div>`;
+            }
+
+            html += `<div class="bracket">`;
+
+            rounds.forEach((round, roundIndex) => {
+                const roundName = getRoundName(roundIndex, rounds.length);
+                html += `<div class="round">
+                <div class="round-title">${roundName}</div>`;
+
+                round.forEach((match, matchIndex) => {
+                    const matchKey = `${roundIndex}-${matchIndex}`;
+                    const savedWinner = bracketData[matchKey];
+
+                    const p1 = match.player1;
+                    const p2 = match.player2;
+
+                    const p1Winner = savedWinner === (p1 ? p1.full_name : null);
+                    const p2Winner = savedWinner === (p2 ? p2.full_name : null);
+
+                    html += `<div class="match">
+                    <div class="match-number">Match ${matchIndex + 1}</div>`;
+
+                    if (p1) {
+                        html += `<div class="player ${p1Winner ? 'winner' : ''} ${match.isBye1 ? 'bye' : ''}"
+                        onclick="selectWinner('${matchKey}', '${roundIndex}', '${matchIndex}', '${(p1.full_name || '').replace(/'/g, "\\'")}', '${(p1.club_name || '').replace(/'/g, "\\'")}', '${p1.flag || '🏳️'}')">
+                        <span class="flag">${p1.flag || '🏳️'}</span>
+                        <div>
+                            <div class="player-name">${p1.full_name}</div>
+                            <div class="player-info">${p1.club_name} | ${p1.nationality}</div>
+                        </div>
+                        ${p1Winner ? ' ✅' : ''}
+                    </div>`;
+                    } else {
+                        html += `<div class="player empty">TBD</div>`;
+                    }
+
+                    if (p2) {
+                        html += `<div class="player ${p2Winner ? 'winner' : ''}"
+                        onclick="selectWinner('${matchKey}', '${roundIndex}', '${matchIndex}', '${(p2.full_name || '').replace(/'/g, "\\'")}', '${(p2.club_name || '').replace(/'/g, "\\'")}', '${p2.flag || '🏳️'}')">
+                        <span class="flag">${p2.flag || '🏳️'}</span>
+                        <div>
+                            <div class="player-name">${p2.full_name}</div>
+                            <div class="player-info">${p2.club_name} | ${p2.nationality}</div>
+                        </div>
+                        ${p2Winner ? ' ✅' : ''}
+                    </div>`;
+                    } else {
+                        html += `<div class="player empty" style="background:#fff3cd; color:#856404;">BYE</div>`;
+                    }
+
+                    html += `</div>`;
+                });
+
+                html += `</div>`;
+
+
+                if (roundIndex < rounds.length - 1) {
+                    html += `<div class="connector">→</div>`;
+                }
+            });
+
+            html += `</div>`;
+
+
+            const finalKey = `${rounds.length - 1}-0`;
+            const champion = bracketData[finalKey];
+            if (champion) {
+                html += `
+                <div class="winner-section">
+                    <span class="winner-trophy">🏆</span>
+                    <div class="winner-name">🥇 ${champion}</div>
+                    <div class="winner-club">CHAMPION — ${category}</div>
+                </div>
+            `;
+            }
+
+            document.getElementById('bracketContainer').innerHTML = html;
+        }
+
+        function buildRounds(fixtures, byes, players) {
+            let rounds = [];
+
+
+            let firstRound = fixtures.map(f => ({
+                player1: f.player1,
+                player2: f.player2,
+                isBye1: false,
+                isBye2: false,
+            }));
+
+
+            byes.forEach(bye => {
+                firstRound.push({
+                    player1: bye,
+                    player2: null,
+                    isBye1: false,
+                    isBye2: true,
+                });
+            });
+
+            rounds.push(firstRound);
+
+
+            let prevRound = firstRound;
+            while (prevRound.length > 1) {
+                let nextRound = [];
+                for (let i = 0; i < prevRound.length; i += 2) {
+                    nextRound.push({
+                        player1: null,
+                        player2: i + 1 < prevRound.length ? null : null,
+                        isBye1: false,
+                        isBye2: false,
+                    });
+                }
+                rounds.push(nextRound);
+                prevRound = nextRound;
+            }
+
+            return rounds;
+        }
+
+        function selectWinner(matchKey, roundIndex, matchIndex, playerName, clubName, flag) {
+            roundIndex = parseInt(roundIndex);
+            matchIndex = parseInt(matchIndex);
+
+
+            bracketData[matchKey] = playerName;
+
+
+            const nextRoundIndex = roundIndex + 1;
+            const nextMatchIndex = Math.floor(matchIndex / 2);
+            const nextMatchKey = `${nextRoundIndex}-${nextMatchIndex}`;
+            const isPlayer1Slot = matchIndex % 2 === 0;
+
+            if (currentBracket[nextRoundIndex]) {
+                const nextMatch = currentBracket[nextRoundIndex][nextMatchIndex];
+                if (nextMatch) {
+                    const playerObj = { full_name: playerName, club_name: clubName, flag: flag, nationality: '' };
+                    if (isPlayer1Slot) {
+                        currentBracket[nextRoundIndex][nextMatchIndex].player1 = playerObj;
+                    } else {
+                        currentBracket[nextRoundIndex][nextMatchIndex].player2 = playerObj;
+                    }
+                }
+            }
+
+
+            fetch('/admin/bracket/save/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({
+                    gender: currentGender,
+                    category: currentCategory,
+                    bracket_data: bracketData
+                })
+            }).then(() => {
+
+                fetch(`/admin/bracket/data/?gender=${currentGender}&category=${encodeURIComponent(currentCategory)}`)
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.status === 'success') {
+                            renderBracket(data);
+                        }
+                    });
+            });
+        }
+
+        function resetBracket() {
+            if (!confirm('Reset this bracket? All winner selections will be cleared.')) return;
+            bracketData = {};
+
+            fetch('/admin/bracket/save/', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
+                body: JSON.stringify({
+                    gender: currentGender,
+                    category: currentCategory,
+                    bracket_data: {}
+                })
+            }).then(() => loadBracket());
+        }
+
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+
+
+        const maleCatsJS = JSON.parse('{{ male_categories|escapejs }}' === '' ? '[]' : '[' + '{{ male_categories|escapejs }}'.split(',').map(c => `"${c.trim()}"`).join(',') + ']');
+    </script>
+
+</body>
+
+</html>
