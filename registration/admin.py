@@ -1,6 +1,21 @@
 from django.contrib import admin
-from . models import Registration, DrawResult
+from . models import Registration, DrawResult, BracketResult
 from django.utils.html import format_html
+from django.http import HttpResponseRedirect
+
+@admin.register(DrawResult)
+class DrawResultAdmin(admin.ModelAdmin):
+    def changelist_view(self, request, extra_context = None):
+        return HttpResponseRedirect('/bracket/')
+
+    def change_view(self, request, object_id, form_url = '', extra_context = None):
+        return HttpResponseRedirect('/bracket/')
+
+@admin.register(BracketResult)
+class BracketResultAdmin(admin.ModelAdmin):
+    def changelist_view(self, request, extra_context = None):
+            return HttpResponseRedirect('/bracket/')
+    
 
 @admin.register(Registration)
 class RegistrationAdmin(admin.ModelAdmin):
@@ -58,7 +73,3 @@ class RegistrationAdmin(admin.ModelAdmin):
         return format_html('<p style="color:gray;">No photo uploaded</p>')
     large_photo.short_description = 'Player Photo'
 
-@admin.register(DrawResult)
-class DrawResultAdmin(admin.ModelAdmin):
-    list_display = ['gender', 'weight_category', 'generated_at']
-    ordering = ['gender', 'weight_category']
