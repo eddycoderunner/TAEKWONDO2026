@@ -309,7 +309,7 @@
 
     <div class="controls" id="controls">
         <a href="/admin/" class="btn btn-back">← Admin</a>
-        <a href="/admin/draws/" class="btn btn-secondary">Draws</a>
+        <a href="/draws/" class="btn btn-secondary">Draws</a>
 
         <label>Gender:</label>
         <select id="genderSelect" onchange="updateCategories()">
@@ -373,7 +373,7 @@
             <div class="loading">Loading bracket...</div>
         `;
 
-            fetch(`/admin/bracket/data/?gender=${gender}&category=${encodeURIComponent(category)}`)
+            fetch(`/bracket/data/?gender=${gender}&category=${encodeURIComponent(category)}`)
                 .then(r => r.json())
                 .then(data => {
                     if (data.status === 'success') {
@@ -579,7 +579,7 @@
             }
 
 
-            fetch('/admin/bracket/save/', {
+            fetch('/bracket/save/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                 body: JSON.stringify({
@@ -589,7 +589,7 @@
                 })
             }).then(() => {
 
-                fetch(`/admin/bracket/data/?gender=${currentGender}&category=${encodeURIComponent(currentCategory)}`)
+                fetch(`/bracket/data/?gender=${currentGender}&category=${encodeURIComponent(currentCategory)}`)
                     .then(r => r.json())
                     .then(data => {
                         if (data.status === 'success') {
@@ -603,7 +603,7 @@
             if (!confirm('Reset this bracket? All winner selections will be cleared.')) return;
             bracketData = {};
 
-            fetch('/admin/bracket/save/', {
+            fetch('/bracket/save/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
                 body: JSON.stringify({
