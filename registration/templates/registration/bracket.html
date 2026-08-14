@@ -125,7 +125,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-around;
-            min-width: 220px;
+            min-width: 230px;
         }
 
         .round-title {
@@ -148,7 +148,6 @@
             overflow: hidden;
             background: white;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
         }
 
         .match-number {
@@ -166,7 +165,7 @@
             cursor: pointer;
             transition: background 0.2s;
             border-bottom: 1px solid #f0f0f0;
-            min-height: 40px;
+            min-height: 44px;
         }
 
         .player:last-child {
@@ -182,11 +181,11 @@
             font-weight: bold;
         }
 
-        .player.bye {
+        .player.bye-slot {
             background: #fff3cd;
             color: #856404;
-            font-style: italic;
             cursor: default;
+            font-style: italic;
         }
 
         .player.empty {
@@ -198,8 +197,20 @@
 
         .flag {
             font-size: 18px;
-            margin-right: 8px;
-            min-width: 25px;
+            margin-right: 6px;
+            min-width: 24px;
+        }
+
+        .code {
+            font-size: 10px;
+            font-weight: bold;
+            color: #1a1a2e;
+            background: #e0e0e0;
+            padding: 1px 5px;
+            border-radius: 3px;
+            margin-right: 7px;
+            min-width: 32px;
+            text-align: center;
         }
 
         .player-name {
@@ -208,41 +219,24 @@
             flex: 1;
         }
 
-        .player-info {
+        .player-club {
             font-size: 10px;
-            color: #666;
+            color: #888;
+        }
+
+        .winner-tick {
+            color: green;
+            font-size: 14px;
+            margin-left: 5px;
         }
 
         .connector {
             display: flex;
             align-items: center;
             justify-content: center;
-            min-width: 30px;
-            position: relative;
-        }
-
-        .winner-section {
-            margin-top: 30px;
-            text-align: center;
-            padding: 20px;
-        }
-
-        .winner-trophy {
-            font-size: 60px;
-            display: block;
-            margin-bottom: 10px;
-        }
-
-        .winner-name {
-            font-size: 24px;
-            font-weight: bold;
-            color: #e94560;
-        }
-
-        .winner-club {
-            font-size: 14px;
-            color: #666;
-            margin-top: 5px;
+            min-width: 20px;
+            color: #999;
+            font-size: 18px;
         }
 
         .byes-section {
@@ -250,7 +244,7 @@
             border: 1px solid #ffc107;
             border-radius: 8px;
             padding: 12px 15px;
-            margin: 15px 20px;
+            margin: 0 0 15px 0;
         }
 
         .byes-title {
@@ -261,7 +255,9 @@
         }
 
         .bye-badge {
-            display: inline-block;
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
             background: white;
             border: 1px solid #ffc107;
             border-radius: 20px;
@@ -269,6 +265,34 @@
             font-size: 12px;
             margin: 3px;
             color: #856404;
+        }
+
+        .winner-section {
+            margin: 30px auto;
+            text-align: center;
+            padding: 20px;
+            background: white;
+            border-radius: 12px;
+            border: 2px solid #e94560;
+            max-width: 400px;
+        }
+
+        .winner-trophy {
+            font-size: 50px;
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .winner-name {
+            font-size: 22px;
+            font-weight: bold;
+            color: #e94560;
+        }
+
+        .winner-club {
+            font-size: 13px;
+            color: #666;
+            margin-top: 5px;
         }
 
         .no-bracket {
@@ -294,7 +318,7 @@
             }
 
             .bracket-container {
-                padding: 10px;
+                padding: 5px;
             }
         }
     </style>
@@ -307,30 +331,25 @@
         <p>Tournament Bracket — Admin View</p>
     </div>
 
-    <div class="controls" id="controls">
+    <div class="controls">
         <a href="/admin/" class="btn btn-back">← Admin</a>
         <a href="/draws/" class="btn btn-secondary">Draws</a>
-
         <label>Gender:</label>
         <select id="genderSelect" onchange="updateCategories()">
             <option value="">Select Gender</option>
-            <option value="male">Male</option>
-            <option value="female">Female</option>
+            <option value="male">♂ Male</option>
+            <option value="female">♀ Female</option>
         </select>
-
         <label>Weight Category:</label>
         <select id="categorySelect" onchange="loadBracket()">
             <option value="">Select Category</option>
         </select>
-
-        <button class="btn btn-primary" onclick="resetBracket()">Reset Bracket</button>
+        <button class="btn btn-primary" onclick="resetBracket()">Reset</button>
         <button class="btn btn-print" onclick="window.print()">Print</button>
     </div>
 
     <div id="bracketContainer" class="bracket-container">
-        <div class="no-bracket">
-            Select a gender and weight category to view the bracket
-        </div>
+        <div class="no-bracket">Select a gender and weight category to view the bracket</div>
     </div>
 
     <script>
@@ -341,12 +360,12 @@
         let currentGender = '';
         let currentCategory = '';
         let bracketData = {};
+        let currentData = null;
 
         function updateCategories() {
             const gender = document.getElementById('genderSelect').value;
             const categorySelect = document.getElementById('categorySelect');
             categorySelect.innerHTML = '<option value="">Select Category</option>';
-
             const categories = gender === 'male' ? maleCategories : femaleCategories;
             categories.forEach(cat => {
                 const option = document.createElement('option');
@@ -354,38 +373,33 @@
                 option.textContent = cat;
                 categorySelect.appendChild(option);
             });
-
-            document.getElementById('bracketContainer').innerHTML = `
-            <div class="no-bracket">Select a weight category to view the bracket</div>
-        `;
+            document.getElementById('bracketContainer').innerHTML = '<div class="no-bracket">Select a weight category to view the bracket</div>';
         }
 
         function loadBracket() {
             const gender = document.getElementById('genderSelect').value;
             const category = document.getElementById('categorySelect').value;
-
             if (!gender || !category) return;
 
             currentGender = gender;
             currentCategory = category;
-
-            document.getElementById('bracketContainer').innerHTML = `
-            <div class="loading">Loading bracket...</div>
-        `;
+            document.getElementById('bracketContainer').innerHTML = '<div class="loading">Loading bracket...</div>';
 
             fetch(`/bracket/data/?gender=${gender}&category=${encodeURIComponent(category)}`)
                 .then(r => r.json())
                 .then(data => {
                     if (data.status === 'success') {
+                        currentData = data;
                         bracketData = data.bracket_data || {};
                         renderBracket(data);
                     } else {
-                        document.getElementById('bracketContainer').innerHTML = `
-                        <div class="no-bracket">No draw found for this category.</div>
-                    `;
+                        document.getElementById('bracketContainer').innerHTML = '<div class="no-bracket">No draw found for this category.</div>';
                     }
                 })
-                .catch(err => console.error(err));
+                .catch(err => {
+                    console.error(err);
+                    document.getElementById('bracketContainer').innerHTML = '<div class="no-bracket">Error loading bracket.</div>';
+                });
         }
 
         function getRoundName(roundIndex, totalRounds) {
@@ -396,6 +410,39 @@
             return `ROUND OF ${Math.pow(2, remaining)}`;
         }
 
+        function buildRounds(fixtures, byes) {
+            let rounds = [];
+            let firstRound = fixtures.map(f => ({
+                player1: f.player1,
+                player2: f.player2,
+                isBye: false,
+            }));
+            byes.forEach(bye => {
+                firstRound.push({ player1: bye, player2: null, isBye: true });
+            });
+            rounds.push(firstRound);
+
+            let prevRound = firstRound;
+            while (prevRound.length > 1) {
+                let nextRound = [];
+                for (let i = 0; i < prevRound.length; i += 2) {
+                    nextRound.push({ player1: null, player2: null, isBye: false });
+                }
+                rounds.push(nextRound);
+                prevRound = nextRound;
+            }
+            return rounds;
+        }
+
+        function findPlayer(name, data) {
+            const all = [
+                ...data.players,
+                ...data.byes,
+                ...(data.fixtures || []).flatMap(f => [f.player1, f.player2].filter(Boolean))
+            ];
+            return all.find(p => p && p.full_name === name) || null;
+        }
+
         function renderBracket(data) {
             const fixtures = data.fixtures;
             const byes = data.byes;
@@ -403,33 +450,44 @@
             const category = data.category;
             const gender = data.gender;
 
-            if (fixtures.length === 0 && players.length <= 1) {
-                document.getElementById('bracketContainer').innerHTML = `
-                <div class="no-bracket">Not enough players for a bracket in this category.</div>
-            `;
+            if (fixtures.length === 0 && byes.length === 0) {
+                document.getElementById('bracketContainer').innerHTML = '<div class="no-bracket">Not enough players for a bracket.</div>';
                 return;
             }
 
+            let rounds = buildRounds(fixtures, byes);
 
-            let rounds = buildRounds(fixtures, byes, players);
+
+            Object.keys(bracketData).forEach(key => {
+                const [ri, mi] = key.split('-').map(Number);
+                const winnerName = bracketData[key];
+                const nextRi = ri + 1;
+                const nextMi = Math.floor(mi / 2);
+                const isSlot1 = mi % 2 === 0;
+
+                if (rounds[nextRi] && rounds[nextRi][nextMi]) {
+                    const playerObj = findPlayer(winnerName, data) || {
+                        full_name: winnerName, club_name: '', flag: '🏳️', code: 'N/A', nationality: ''
+                    };
+                    if (isSlot1) {
+                        rounds[nextRi][nextMi].player1 = playerObj;
+                    } else {
+                        rounds[nextRi][nextMi].player2 = playerObj;
+                    }
+                }
+            });
+
             currentBracket = rounds;
 
             let html = `
-            <div class="bracket-title">
-                ${gender === 'male' ? '♂ Male' : '♀ Female'} — ${category}
-            </div>
-            <div class="bracket-subtitle">
-                ${players.length} athlete${players.length !== 1 ? 's' : ''} registered
-                ${byes.length > 0 ? ` | ${byes.length} bye${byes.length !== 1 ? 's' : ''}` : ''}
-            </div>
+            <div class="bracket-title">${gender === 'male' ? '♂ Male' : '♀ Female'} — ${category}</div>
+            <div class="bracket-subtitle">${players.length} athlete${players.length !== 1 ? 's' : ''} registered${byes.length > 0 ? ` | ${byes.length} BYE${byes.length !== 1 ? 's' : ''}` : ''}</div>
         `;
 
-
             if (byes.length > 0) {
-                html += `<div class="byes-section">
-                <div class="byes-title">⚡ BYE — Automatic advance to next round:</div>`;
+                html += `<div class="byes-section"><div class="byes-title">⚡ BYE — Automatic advance to next round:</div>`;
                 byes.forEach(bye => {
-                    html += `<span class="bye-badge">${bye.flag || '🏳️'} ${bye.full_name} (${bye.club_name})</span>`;
+                    html += `<span class="bye-badge"><span>${bye.flag || '🏳️'}</span><strong>${bye.code || 'N/A'}</strong>${bye.full_name}</span>`;
                 });
                 html += `</div>`;
             }
@@ -437,57 +495,50 @@
             html += `<div class="bracket">`;
 
             rounds.forEach((round, roundIndex) => {
-                const roundName = getRoundName(roundIndex, rounds.length);
-                html += `<div class="round">
-                <div class="round-title">${roundName}</div>`;
+                html += `<div class="round"><div class="round-title">${getRoundName(roundIndex, rounds.length)}</div>`;
 
                 round.forEach((match, matchIndex) => {
                     const matchKey = `${roundIndex}-${matchIndex}`;
                     const savedWinner = bracketData[matchKey];
-
                     const p1 = match.player1;
                     const p2 = match.player2;
+                    const p1Won = savedWinner && p1 && savedWinner === p1.full_name;
+                    const p2Won = savedWinner && p2 && savedWinner === p2.full_name;
 
-                    const p1Winner = savedWinner === (p1 ? p1.full_name : null);
-                    const p2Winner = savedWinner === (p2 ? p2.full_name : null);
+                    html += `<div class="match"><div class="match-number">Match ${matchIndex + 1}</div>`;
 
-                    html += `<div class="match">
-                    <div class="match-number">Match ${matchIndex + 1}</div>`;
-
+                    // Player 1
                     if (p1) {
-                        html += `<div class="player ${p1Winner ? 'winner' : ''} ${match.isBye1 ? 'bye' : ''}"
-                        onclick="selectWinner('${matchKey}', '${roundIndex}', '${matchIndex}', '${(p1.full_name || '').replace(/'/g, "\\'")}', '${(p1.club_name || '').replace(/'/g, "\\'")}', '${p1.flag || '🏳️'}')">
+                        const byeClass = match.isBye ? 'bye-slot' : '';
+                        const clickable = !match.isBye ? `onclick="selectWinner('${matchKey}', ${roundIndex}, ${matchIndex}, '${esc(p1.full_name)}', '${esc(p1.club_name)}', '${p1.flag || '🏳️'}', '${p1.code || 'N/A'}', '${esc(p1.nationality || '')}')"` : '';
+                        html += `<div class="player ${p1Won ? 'winner' : ''} ${byeClass}" ${clickable}>
                         <span class="flag">${p1.flag || '🏳️'}</span>
-                        <div>
-                            <div class="player-name">${p1.full_name}</div>
-                            <div class="player-info">${p1.club_name} | ${p1.nationality}</div>
-                        </div>
-                        ${p1Winner ? ' ✅' : ''}
+                        <span class="code">${p1.code || 'N/A'}</span>
+                        <div><div class="player-name">${p1.full_name}</div><div class="player-club">${p1.club_name || ''}</div></div>
+                        ${p1Won ? '<span class="winner-tick">✅</span>' : ''}
                     </div>`;
                     } else {
                         html += `<div class="player empty">TBD</div>`;
                     }
 
+                    // Player 2
                     if (p2) {
-                        html += `<div class="player ${p2Winner ? 'winner' : ''}"
-                        onclick="selectWinner('${matchKey}', '${roundIndex}', '${matchIndex}', '${(p2.full_name || '').replace(/'/g, "\\'")}', '${(p2.club_name || '').replace(/'/g, "\\'")}', '${p2.flag || '🏳️'}')">
+                        html += `<div class="player ${p2Won ? 'winner' : ''}" onclick="selectWinner('${matchKey}', ${roundIndex}, ${matchIndex}, '${esc(p2.full_name)}', '${esc(p2.club_name)}', '${p2.flag || '🏳️'}', '${p2.code || 'N/A'}', '${esc(p2.nationality || '')}')">
                         <span class="flag">${p2.flag || '🏳️'}</span>
-                        <div>
-                            <div class="player-name">${p2.full_name}</div>
-                            <div class="player-info">${p2.club_name} | ${p2.nationality}</div>
-                        </div>
-                        ${p2Winner ? ' ✅' : ''}
+                        <span class="code">${p2.code || 'N/A'}</span>
+                        <div><div class="player-name">${p2.full_name}</div><div class="player-club">${p2.club_name || ''}</div></div>
+                        ${p2Won ? '<span class="winner-tick">✅</span>' : ''}
                     </div>`;
+                    } else if (match.isBye) {
+                        html += `<div class="player bye-slot">⚡ BYE</div>`;
                     } else {
-                        html += `<div class="player empty" style="background:#fff3cd; color:#856404;">BYE</div>`;
+                        html += `<div class="player empty">TBD</div>`;
                     }
 
                     html += `</div>`;
                 });
 
                 html += `</div>`;
-
-
                 if (roundIndex < rounds.length - 1) {
                     html += `<div class="connector">→</div>`;
                 }
@@ -499,118 +550,65 @@
             const finalKey = `${rounds.length - 1}-0`;
             const champion = bracketData[finalKey];
             if (champion) {
+                const champObj = findPlayer(champion, data);
                 html += `
                 <div class="winner-section">
                     <span class="winner-trophy">🏆</span>
-                    <div class="winner-name">🥇 ${champion}</div>
-                    <div class="winner-club">CHAMPION — ${category}</div>
-                </div>
-            `;
+                    <div class="winner-name">${champObj ? champObj.flag : '🏳️'} ${champObj ? champObj.code : ''} ${champion}</div>
+                    <div class="winner-club">🥇 CHAMPION — ${category}${champObj ? '<br>' + champObj.club_name : ''}</div>
+                </div>`;
             }
 
             document.getElementById('bracketContainer').innerHTML = html;
         }
 
-        function buildRounds(fixtures, byes, players) {
-            let rounds = [];
-
-
-            let firstRound = fixtures.map(f => ({
-                player1: f.player1,
-                player2: f.player2,
-                isBye1: false,
-                isBye2: false,
-            }));
-
-
-            byes.forEach(bye => {
-                firstRound.push({
-                    player1: bye,
-                    player2: null,
-                    isBye1: false,
-                    isBye2: true,
-                });
-            });
-
-            rounds.push(firstRound);
-
-
-            let prevRound = firstRound;
-            while (prevRound.length > 1) {
-                let nextRound = [];
-                for (let i = 0; i < prevRound.length; i += 2) {
-                    nextRound.push({
-                        player1: null,
-                        player2: i + 1 < prevRound.length ? null : null,
-                        isBye1: false,
-                        isBye2: false,
-                    });
-                }
-                rounds.push(nextRound);
-                prevRound = nextRound;
-            }
-
-            return rounds;
+        function esc(str) {
+            return (str || '').replace(/'/g, "\\'").replace(/"/g, '\\"');
         }
 
-        function selectWinner(matchKey, roundIndex, matchIndex, playerName, clubName, flag) {
-            roundIndex = parseInt(roundIndex);
-            matchIndex = parseInt(matchIndex);
-
+        function selectWinner(matchKey, roundIndex, matchIndex, playerName, clubName, flag, code, nationality) {
 
             bracketData[matchKey] = playerName;
 
 
-            const nextRoundIndex = roundIndex + 1;
-            const nextMatchIndex = Math.floor(matchIndex / 2);
-            const nextMatchKey = `${nextRoundIndex}-${nextMatchIndex}`;
-            const isPlayer1Slot = matchIndex % 2 === 0;
+            const nextRi = roundIndex + 1;
+            const nextMi = Math.floor(matchIndex / 2);
+            const isSlot1 = matchIndex % 2 === 0;
 
-            if (currentBracket[nextRoundIndex]) {
-                const nextMatch = currentBracket[nextRoundIndex][nextMatchIndex];
-                if (nextMatch) {
-                    const playerObj = { full_name: playerName, club_name: clubName, flag: flag, nationality: '' };
-                    if (isPlayer1Slot) {
-                        currentBracket[nextRoundIndex][nextMatchIndex].player1 = playerObj;
-                    } else {
-                        currentBracket[nextRoundIndex][nextMatchIndex].player2 = playerObj;
-                    }
+            if (currentBracket[nextRi] && currentBracket[nextRi][nextMi]) {
+                const playerObj = { full_name: playerName, club_name: clubName, flag: flag, code: code, nationality: nationality };
+                if (isSlot1) {
+                    currentBracket[nextRi][nextMi].player1 = playerObj;
+                } else {
+                    currentBracket[nextRi][nextMi].player2 = playerObj;
                 }
+            }
+
+
+            if (currentData) {
+                currentData.bracket_data = bracketData;
+                renderBracket(currentData);
             }
 
 
             fetch('/bracket/save/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({
-                    gender: currentGender,
-                    category: currentCategory,
-                    bracket_data: bracketData
-                })
-            }).then(() => {
-
-                fetch(`/bracket/data/?gender=${currentGender}&category=${encodeURIComponent(currentCategory)}`)
-                    .then(r => r.json())
-                    .then(data => {
-                        if (data.status === 'success') {
-                            renderBracket(data);
-                        }
-                    });
+                body: JSON.stringify({ gender: currentGender, category: currentCategory, bracket_data: bracketData })
             });
         }
 
         function resetBracket() {
+            if (!currentGender || !currentCategory) {
+                alert('Please select a gender and category first.');
+                return;
+            }
             if (!confirm('Reset this bracket? All winner selections will be cleared.')) return;
             bracketData = {};
-
             fetch('/bracket/save/', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json', 'X-CSRFToken': getCookie('csrftoken') },
-                body: JSON.stringify({
-                    gender: currentGender,
-                    category: currentCategory,
-                    bracket_data: {}
-                })
+                body: JSON.stringify({ gender: currentGender, category: currentCategory, bracket_data: {} })
             }).then(() => loadBracket());
         }
 
@@ -628,9 +626,6 @@
             }
             return cookieValue;
         }
-
-
-        const maleCatsJS = JSON.parse('{{ male_categories|escapejs }}' === '' ? '[]' : '[' + '{{ male_categories|escapejs }}'.split(',').map(c => `"${c.trim()}"`).join(',') + ']');
     </script>
 
 </body>
